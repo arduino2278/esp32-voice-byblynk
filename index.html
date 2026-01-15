@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Commande vocale ESP32</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 50px; }
+    button { font-size: 20px; padding: 15px; }
+    #log { margin-top: 20px; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+<h1>🎤 Commande vocale LEDs</h1>
+<button onclick="startRecognition()">Parler</button>
+<p id="log">Commande : ...</p>
+
+<script>
+const BLYNK_TOKEN = "BLYNK_AUTH_TOKEN";
+
+function sendToBlynk(pin, value) {
+  fetch(`https://blynk.cloud/external/api/update?token=${BLYNK_TOKEN}&${pin}=${value}`);
+}
+
+function processCommand(text) {
+  text = text.toLowerCase();
+
+  if (text.includes("rouge")) {
+    sendToBlynk("V1", text.includes("allumer") ? 1 : 0);
+  }
+  if (text.includes("verte")) {
+    sendToBlynk("V2", text.includes("allumer") ? 1 : 0);
+  }
+  if (text.includes("jaune")) {
+    sendToBlynk("V3", text.includes("allumer") ? 1 : 0);
+  }
+}
+
+function startRecognition() {
+  const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  recognition.lang = "fr-FR";
+
+  recognition.onresult = function(event) {
+    const text = event.results[0][0].transcript;
+    document.getElementById("log").innerText = "Commande : " + text;
+    processCommand(text);
+  };
+
+  recognition.start();
+}
+</script>
+
+</body>
+</html>
